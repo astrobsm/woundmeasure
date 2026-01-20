@@ -1,6 +1,6 @@
 # AstroWound-MEASURE Deployment Guide
 
-## Deploying to Vercel with Custom Domain (bonnesantemedicals.com)
+## Deploying to Vercel with Subdomain (wound.bonnesantemedicals.com)
 
 ### Step 1: Deploy to Vercel
 
@@ -28,30 +28,25 @@
 
 ---
 
-### Step 2: Configure Custom Domain
+### Step 2: Configure Subdomain
 
 1. **In Vercel Dashboard:**
    - Go to your project → **Settings** → **Domains**
-   - Add `bonnesantemedicals.com`
-   - Add `www.bonnesantemedicals.com`
+   - Add `wound.bonnesantemedicals.com`
 
 2. **DNS Configuration:**
    
-   Add these DNS records at your domain registrar:
+   Add this DNS record at your domain registrar:
 
-   | Type  | Name | Value                    |
-   |-------|------|--------------------------|
-   | A     | @    | 76.76.21.21             |
-   | CNAME | www  | cname.vercel-dns.com    |
+   | Type  | Name  | Value                    |
+   |-------|-------|--------------------------|
+   | CNAME | wound | cname.vercel-dns.com     |
 
-   **Or if using Vercel nameservers:**
-   - Change nameservers to Vercel's nameservers (shown in Vercel dashboard)
+   > Note: Your main domain `bonnesantemedicals.com` stays unchanged for your existing app.
 
-3. **Wait for DNS propagation** (can take up to 48 hours, usually 1-2 hours)
+3. **Wait for DNS propagation** (usually 1-30 minutes for subdomains)
 
-4. **Enable HTTPS:**
-   - Vercel automatically provisions SSL certificates
-   - Once DNS is configured, HTTPS will be enabled automatically
+4. **HTTPS is automatic** - Vercel provisions SSL certificates automatically
 
 ---
 
@@ -165,13 +160,15 @@ Consider adding Sentry or similar for error tracking.
 ## Domain Verification
 
 After DNS setup, verify at:
-- https://bonnesantemedicals.com
-- https://www.bonnesantemedicals.com
+- https://wound.bonnesantemedicals.com
 
-Both should:
-1. Load the app with HTTPS
+The app should:
+1. Load with HTTPS
 2. Show as "installable" PWA
 3. Work offline after first load
+
+Your existing app remains at:
+- https://bonnesantemedicals.com
 
 ---
 

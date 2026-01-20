@@ -95,7 +95,7 @@ self.addEventListener('fetch', (event) => {
       !url.hostname.includes('tfhub') &&
       !url.hostname.includes('unpkg') &&
       !url.hostname.includes('jsdelivr') &&
-      !url.hostname.includes('bonnesantemedicals.com')) {
+      !url.hostname.includes('wound.bonnesantemedicals.com')) {
     return;
   }
 
