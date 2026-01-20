@@ -35,37 +35,78 @@ export const UserGuide: React.FC = () => {
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 15;
-      let yPos = margin;
+      let yPos = margin + 20; // Extra space for header
+
+      // Add BonneSante Medicals header to each page
+      const addBrandingHeader = () => {
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(14, 165, 233);
+        pdf.text('BONNESANTE MEDICALS', pageWidth / 2, 10, { align: 'center' });
+        pdf.setFontSize(7);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(100);
+        pdf.text('Innovation in Wound Care', pageWidth / 2, 14, { align: 'center' });
+        pdf.setDrawColor(14, 165, 233);
+        pdf.setLineWidth(0.5);
+        pdf.line(margin, 17, pageWidth - margin, 17);
+      };
+
+      // Add BonneSante Medicals footer to each page
+      const addBrandingFooter = (pageNum: number, totalPages: string) => {
+        pdf.setDrawColor(14, 165, 233);
+        pdf.setLineWidth(0.3);
+        pdf.line(margin, pageHeight - 18, pageWidth - margin, pageHeight - 18);
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(100);
+        pdf.text('© BonneSante Medicals — Your Trusted Partner in Wound Healing Journey', margin, pageHeight - 12);
+        pdf.text(`Page ${pageNum} of ${totalPages}`, pageWidth - margin, pageHeight - 12, { align: 'right' });
+        pdf.setFontSize(7);
+        pdf.text('bonnesantemedicals.com | wound.bonnesantemedicals.com', pageWidth / 2, pageHeight - 7, { align: 'center' });
+      };
 
       const addPage = () => {
         pdf.addPage();
-        yPos = margin;
+        addBrandingHeader();
+        yPos = margin + 20;
       };
 
       const checkPageBreak = (neededSpace: number) => {
-        if (yPos + neededSpace > pageHeight - margin) {
+        if (yPos + neededSpace > pageHeight - 25) {
           addPage();
         }
       };
 
-      // Title Page
+      // Title Page with prominent branding
+      addBrandingHeader();
+      
+      // Large company name
+      pdf.setFontSize(22);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(14, 165, 233);
+      pdf.text('BONNESANTE MEDICALS', pageWidth / 2, 45, { align: 'center' });
+      
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'italic');
+      pdf.setTextColor(80);
+      pdf.text('Innovation in Wound Care — Your Trusted Partner in Wound Healing Journey', pageWidth / 2, 54, { align: 'center' });
+
       pdf.setFontSize(28);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(14, 165, 233);
-      pdf.text('AstroWound-MEASURE', pageWidth / 2, 60, { align: 'center' });
+      pdf.text('AstroWound-MEASURE', pageWidth / 2, 80, { align: 'center' });
 
       pdf.setFontSize(16);
       pdf.setTextColor(100);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('User Guide', pageWidth / 2, 75, { align: 'center' });
+      pdf.text('User Guide', pageWidth / 2, 95, { align: 'center' });
 
       pdf.setFontSize(12);
-      pdf.text('AI-Powered Clinical Wound Assessment Application', pageWidth / 2, 90, { align: 'center' });
+      pdf.text('AI-Powered Clinical Wound Assessment Application', pageWidth / 2, 110, { align: 'center' });
 
       pdf.setFontSize(10);
-      pdf.text('Bonne Santé Medicals', pageWidth / 2, 105, { align: 'center' });
-      pdf.text('bonnesantemedicals.com', pageWidth / 2, 112, { align: 'center' });
-      pdf.text('Version 1.0.0', pageWidth / 2, 125, { align: 'center' });
+      pdf.text('Version 1.0.0', pageWidth / 2, 130, { align: 'center' });
 
       // Getting Started
       addPage();
@@ -423,12 +464,14 @@ export const UserGuide: React.FC = () => {
         yPos += 5;
       });
 
-      // Footer on last page
-      pdf.setFontSize(9);
-      pdf.setTextColor(150);
-      pdf.text('AstroWound-MEASURE User Guide — Version 1.0.0', pageWidth / 2, pageHeight - 10, { align: 'center' });
+      // Add footer to all pages
+      const totalPages = pdf.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        addBrandingFooter(i, totalPages.toString());
+      }
 
-      pdf.save('AstroWound-MEASURE-User-Guide.pdf');
+      pdf.save('BonneSante-AstroWound-User-Guide.pdf');
     } catch (error) {
       console.error('Failed to generate PDF:', error);
     } finally {
