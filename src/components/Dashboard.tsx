@@ -147,7 +147,8 @@ export const Dashboard: React.FC = () => {
               <Link
                 to="/guide"
                 className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
-                title="User Guide"
+                title="User Guide & Help"
+                aria-label="Open User Guide"
               >
                 <HelpCircle className="w-5 h-5" />
               </Link>
@@ -156,6 +157,8 @@ export const Dashboard: React.FC = () => {
               <Link
                 to="/settings"
                 className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                title="Settings"
+                aria-label="Open Settings"
               >
                 <Settings className="w-5 h-5" />
               </Link>
