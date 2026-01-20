@@ -358,32 +358,36 @@ export const Dashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Model Status */}
-        <div className={`rounded-xl p-6 text-white ${
-          modelStatus === 'error' 
-            ? 'bg-gradient-to-r from-red-500 to-red-600' 
-            : 'bg-gradient-to-r from-astro-500 to-astro-600'
-        }`}>
+        {/* BonneSante Medicals Branding & Quick Links */}
+        <div className="bg-gradient-to-r from-astro-500 to-astro-600 rounded-xl p-6 text-white">
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-full bg-white/20 flex items-center justify-center ${
-              modelStatus === 'loading' ? 'animate-pulse' : ''
-            }`}>
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
               <Activity className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold">AI Segmentation Engine (TensorFlow.js)</h3>
+              <h3 className="font-semibold text-lg">Innovation in Wound Care</h3>
               <p className="text-white/80">
-                {modelStatus === 'idle' && 'Preparing to load...'}
-                {modelStatus === 'loading' && 'Loading TensorFlow.js model...'}
-                {modelStatus === 'ready' && '✓ Model loaded & ready for wound analysis'}
-                {modelStatus === 'error' && 'Failed to load - will retry on capture'}
+                Powered by BonneSanté Medicals — Your trusted partner in the wound healing journey
               </p>
             </div>
-            {modelStatus === 'ready' && (
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                <Activity className="w-4 h-4 text-green-300" />
-              </div>
-            )}
+          </div>
+          
+          {/* Quick Links */}
+          <div className="mt-4 pt-4 border-t border-white/20 flex flex-wrap gap-3">
+            <Link
+              to="/guide"
+              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+            >
+              <HelpCircle className="w-4 h-4" />
+              <span>User Guide & Help</span>
+            </Link>
+            <Link
+              to="/settings"
+              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+            >
+              <Settings className="w-4 h-4" />
+              <span>Settings</span>
+            </Link>
           </div>
         </div>
       </main>
