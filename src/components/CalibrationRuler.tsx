@@ -5,7 +5,7 @@
 
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Printer, Download, Info, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Printer, Download, Info, CheckCircle, Scissors } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
@@ -45,6 +45,105 @@ export const CalibrationRuler: React.FC = () => {
     }
   };
 
+  // Generate Multi-Ruler PDF with multiple 5cm rulers for cutting
+  const handleDownloadMultiRulerPDF = () => {
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth(); // 210mm
+      const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
+      const margin = 10;
+      const rulerWidth = 50; // 5cm ruler
+      const rulerHeight = 15; // Height of each ruler strip
+      const gapBetweenRulers = 5; // Gap for cutting guide
+      const totalRulerHeight = rulerHeight + gapBetweenRulers;
+      
+      // Calculate how many rulers fit
+      const rulersPerRow = Math.floor((pageWidth - 2 * margin) / (rulerWidth + 5));
+      const rulersPerColumn = Math.floor((pageHeight - 40) / totalRulerHeight);
+      
+      // Header
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(14, 165, 233);
+      pdf.text('BONNESANTE MEDICALS', pageWidth / 2, 12, { align: 'center' });
+      
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(100);
+      pdf.text('Cut-Out Calibration Rulers (5cm) - Print at 100% Scale', pageWidth / 2, 18, { align: 'center' });
+      
+      // Draw cutting instruction
+      pdf.setFontSize(7);
+      pdf.setTextColor(150);
+      pdf.text('Cut along dotted lines', pageWidth / 2, 24, { align: 'center' });
+      
+      const startY = 30;
+      const startX = margin;
+      
+      // Draw rulers in a grid pattern
+      for (let row = 0; row < rulersPerColumn; row++) {
+        for (let col = 0; col < rulersPerRow; col++) {
+          const x = startX + col * (rulerWidth + 5);
+          const y = startY + row * totalRulerHeight;
+          
+          // Draw dotted cutting guide box
+          pdf.setDrawColor(150);
+          pdf.setLineDashPattern([1, 1], 0);
+          pdf.rect(x - 1, y - 1, rulerWidth + 2, rulerHeight + 2);
+          
+          // Draw ruler background
+          pdf.setFillColor(255, 255, 255);
+          pdf.setDrawColor(0);
+          pdf.setLineDashPattern([], 0);
+          pdf.rect(x, y, rulerWidth, rulerHeight, 'FD');
+          
+          // Draw ruler markings
+          for (let mm = 0; mm <= 50; mm++) {
+            const tickX = x + mm;
+            const isCm = mm % 10 === 0;
+            const isHalfCm = mm % 5 === 0;
+            const tickHeight = isCm ? 5 : isHalfCm ? 3.5 : 2;
+            
+            pdf.setDrawColor(0);
+            pdf.setLineWidth(isCm ? 0.3 : 0.15);
+            pdf.line(tickX, y, tickX, y + tickHeight);
+            
+            // Add cm numbers
+            if (isCm && mm > 0) {
+              pdf.setFontSize(6);
+              pdf.setFont('helvetica', 'bold');
+              pdf.setTextColor(0);
+              pdf.text(String(mm / 10), tickX, y + 7, { align: 'center' });
+            }
+          }
+          
+          // Add "cm" label
+          pdf.setFontSize(5);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(100);
+          pdf.text('cm', x + 48, y + 7, { align: 'right' });
+          
+          // Add branding in the bottom area (won't interfere with measurements)
+          pdf.setFontSize(4);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(180);
+          pdf.text('astrobsm-BonneSante Medicals', x + rulerWidth / 2, y + rulerHeight - 1.5, { align: 'center' });
+        }
+      }
+      
+      // Footer with scissors icon instruction
+      pdf.setFontSize(7);
+      pdf.setTextColor(100);
+      pdf.text('✂ Cut along dotted lines to create individual 5cm calibration rulers', pageWidth / 2, pageHeight - 10, { align: 'center' });
+      pdf.setFontSize(6);
+      pdf.text('© BonneSante Medicals - wound.bonnesantemedicals.com', pageWidth / 2, pageHeight - 5, { align: 'center' });
+      
+      pdf.save('BonneSante-5cm-Calibration-Rulers.pdf');
+    } catch (error) {
+      console.error('Failed to generate multi-ruler PDF:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header - Hidden in print */}
@@ -76,7 +175,15 @@ export const CalibrationRuler: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2 bg-astro-500 text-white rounded-lg hover:bg-astro-600"
             >
               <Download className="w-4 h-4" />
-              Download PDF
+              Full Kit
+            </button>
+            <button
+              onClick={handleDownloadMultiRulerPDF}
+              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+              title="Download multiple 5cm rulers for cutting"
+            >
+              <Scissors className="w-4 h-4" />
+              5cm Rulers
             </button>
           </div>
         </div>
