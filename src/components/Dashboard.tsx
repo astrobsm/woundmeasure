@@ -11,7 +11,6 @@ import {
   Calendar,
   Plus,
   Search,
-  FileText,
   Settings,
   Wifi,
   WifiOff,
@@ -30,7 +29,6 @@ export const Dashboard: React.FC = () => {
   const { isOnline, isModelLoaded, setModelLoaded, pendingSync } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [recentWounds, setRecentWounds] = useState<Array<{ wound: Wound; patient: Patient }>>([]);
-  const [modelStatus, setModelStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [stats, setStats] = useState({
     totalPatients: 0,
     activeWounds: 0,
