@@ -112,9 +112,11 @@ export const Dashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-astro-500 to-astro-600 flex items-center justify-center">
-                <Activity className="w-6 h-6 text-white" />
-              </div>
+              <img 
+                src="/app-logo.png" 
+                alt="AstroWound Logo" 
+                className="w-10 h-10 rounded-xl object-contain"
+              />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">AstroWound-MEASURE</h1>
                 <p className="text-xs text-gray-500">Clinical Wound Assessment</p>
