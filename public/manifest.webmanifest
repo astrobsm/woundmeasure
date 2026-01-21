@@ -5,16 +5,11 @@
   "start_url": "/",
   "id": "bonnesantemedicals-astrowound",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#0ea5e9",
   "theme_color": "#0ea5e9",
   "orientation": "portrait-primary",
   "scope": "/",
   "categories": ["medical", "health", "productivity"],
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
-  "handle_links": "preferred",
   "icons": [
     {
       "src": "/icons/icon-192x192.svg",
@@ -63,24 +58,12 @@
     {
       "src": "/screenshots/dashboard.png",
       "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Dashboard showing patient overview"
+      "type": "image/png"
     },
     {
       "src": "/screenshots/capture.png",
       "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Wound capture interface"
-    }
-  ],
-  "file_handlers": [
-    {
-      "action": "/",
-      "accept": {
-        "application/json": [".json"]
-      }
+      "type": "image/png"
     }
   ]
 }
