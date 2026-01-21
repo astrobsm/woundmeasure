@@ -45,20 +45,16 @@ export const Dashboard: React.FC = () => {
   // Initialize AI model in background
   const initializeAIModel = async () => {
     if (isModelLoaded) {
-      setModelStatus('ready');
       return;
     }
     
-    setModelStatus('loading');
     try {
       const { getSegmentationEngine } = await import('@/engine');
       const engine = getSegmentationEngine();
       await engine.initialize();
       setModelLoaded(true);
-      setModelStatus('ready');
     } catch (error) {
       console.error('Failed to initialize AI model:', error);
-      setModelStatus('error');
     }
   };
 
