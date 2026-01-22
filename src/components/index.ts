@@ -16,3 +16,7 @@ export { default as ReportModulePage } from './ReportModulePage';
 export { Settings } from './Settings';
 export { UserGuide } from './UserGuide';
 export { default as Watermark } from './Watermark';
+
+// Clinical Workflow Components
+export { default as PainAssessment } from './PainAssessment';
+export { default as DressingProtocol } from './DressingProtocol';

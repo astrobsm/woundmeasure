@@ -18,6 +18,10 @@ const CalibrationRuler = lazy(() => import('./components/CalibrationRuler').then
 const ReportModulePage = lazy(() => import('./components/ReportModulePage').then(m => ({ default: m.default })));
 const Settings = lazy(() => import('./components/Settings').then(m => ({ default: m.Settings })));
 const UserGuide = lazy(() => import('./components/UserGuide').then(m => ({ default: m.UserGuide })));
+
+// Clinical Workflow Components
+const PainAssessment = lazy(() => import('./components/PainAssessment').then(m => ({ default: m.default })));
+const DressingProtocol = lazy(() => import('./components/DressingProtocol').then(m => ({ default: m.default })));
 import Watermark from './components/Watermark';
 
 // Loading component
@@ -129,6 +133,13 @@ const App: React.FC = () => {
 
           {/* User Guide */}
           <Route path="/guide" element={<UserGuide />} />
+
+          {/* Clinical Workflow */}
+          <Route path="/clinical/pain-assessment" element={<PainAssessment />} />
+          <Route path="/clinical/pain-assessment/:patientId" element={<PainAssessment />} />
+          <Route path="/clinical/pain-assessment/:patientId/:woundId" element={<PainAssessment />} />
+          <Route path="/clinical/dressing-protocol" element={<DressingProtocol />} />
+          <Route path="/clinical/dressing-protocol/:patientId/:woundId" element={<DressingProtocol />} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

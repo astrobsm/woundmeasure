@@ -18,6 +18,9 @@ import {
   TrendingDown,
   Download,
   HelpCircle,
+  Stethoscope,
+  Scissors,
+  ClipboardList,
 } from 'lucide-react';
 import { usePatientsStore, useAppStore } from '@/store';
 import * as db from '@/store/database';
@@ -216,7 +219,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <button
             onClick={() => navigate('/patients/new')}
             className="bg-astro-500 hover:bg-astro-600 text-white rounded-xl p-4 flex items-center gap-3 transition-colors"
@@ -242,20 +245,55 @@ export const Dashboard: React.FC = () => {
           </Link>
 
           <Link
-            to="/guide"
-            className="bg-green-500 hover:bg-green-600 text-white rounded-xl p-4 flex items-center gap-3 transition-colors"
-          >
-            <HelpCircle className="w-6 h-6" />
-            <span className="font-medium">Help & Guide</span>
-          </Link>
-
-          <Link
             to="/settings"
             className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 rounded-xl p-4 flex items-center gap-3 transition-colors"
           >
             <Settings className="w-6 h-6" />
             <span className="font-medium">Settings</span>
           </Link>
+        </div>
+
+        {/* Clinical Workflow Section */}
+        <div className="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-xl p-6 text-white">
+          <div className="flex items-center gap-3 mb-4">
+            <Stethoscope className="w-6 h-6" />
+            <h2 className="text-lg font-semibold">Clinical Workflow</h2>
+          </div>
+          <p className="text-white/80 mb-4 text-sm">
+            Comprehensive pain management and wound dressing protocol tools with WHO Ladder-based recommendations.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button
+              onClick={() => navigate('/clinical/pain-assessment')}
+              className="flex items-center gap-3 px-4 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+            >
+              <ClipboardList className="w-5 h-5" />
+              <div className="text-left">
+                <p className="font-medium">Pain Assessment</p>
+                <p className="text-xs text-white/70">WHO Ladder guidance</p>
+              </div>
+            </button>
+            <button
+              onClick={() => navigate('/clinical/dressing-protocol')}
+              className="flex items-center gap-3 px-4 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+            >
+              <Scissors className="w-5 h-5" />
+              <div className="text-left">
+                <p className="font-medium">Dressing Protocol</p>
+                <p className="text-xs text-white/70">Phase-based workflow</p>
+              </div>
+            </button>
+            <Link
+              to="/guide"
+              className="flex items-center gap-3 px-4 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+            >
+              <HelpCircle className="w-5 h-5" />
+              <div className="text-left">
+                <p className="font-medium">Clinical Guide</p>
+                <p className="text-xs text-white/70">Help & documentation</p>
+              </div>
+            </Link>
+          </div>
         </div>
 
         {/* Search */}

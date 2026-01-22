@@ -10,11 +10,18 @@ import type {
   WoundAssessment, 
   ClinicalReport, 
   AppSettings,
-  SyncQueueItem 
+  SyncQueueItem,
+  DressingSession,
+  DressingPainAssessment,
+  SterileFieldChecklist,
+  MaterialsChecklist,
+  DressingProtocol,
+  PostDressingCare,
+  PainManagementPlan,
 } from '@/types';
 
 const DB_NAME = 'astrowound-measure';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Upgraded for new tables
 
 interface AstroWoundDB {
   patients: Patient;
@@ -24,6 +31,14 @@ interface AstroWoundDB {
   settings: AppSettings;
   syncQueue: SyncQueueItem;
   images: { id: string; data: Blob; type: string };
+  // New tables for wound dressing protocol
+  dressingSessions: DressingSession;
+  painAssessments: DressingPainAssessment;
+  sterileFieldChecklists: SterileFieldChecklist;
+  materialsChecklists: MaterialsChecklist;
+  dressingProtocols: DressingProtocol;
+  postDressingCare: PostDressingCare;
+  painManagementPlans: PainManagementPlan;
 }
 
 let db: IDBPDatabase<AstroWoundDB> | null = null;
@@ -79,6 +94,59 @@ export async function initDatabase(): Promise<IDBPDatabase<AstroWoundDB>> {
       // Images store (for blob storage)
       if (!database.objectStoreNames.contains('images')) {
         database.createObjectStore('images', { keyPath: 'id' });
+      }
+
+      // ============================================
+      // New Stores for Wound Dressing Protocol & Pain Management
+      // ============================================
+
+      // Dressing sessions store
+      if (!database.objectStoreNames.contains('dressingSessions')) {
+        const dressingStore = database.createObjectStore('dressingSessions', { keyPath: 'id' });
+        dressingStore.createIndex('patientId', 'patientId');
+        dressingStore.createIndex('woundId', 'woundId');
+        dressingStore.createIndex('createdAt', 'createdAt');
+        dressingStore.createIndex('status', 'status');
+      }
+
+      // Pain assessments store
+      if (!database.objectStoreNames.contains('painAssessments')) {
+        const painStore = database.createObjectStore('painAssessments', { keyPath: 'id' });
+        painStore.createIndex('patientId', 'patientId');
+        painStore.createIndex('dressingSessionId', 'dressingSessionId');
+        painStore.createIndex('capturedAt', 'capturedAt');
+      }
+
+      // Sterile field checklists store
+      if (!database.objectStoreNames.contains('sterileFieldChecklists')) {
+        const sterileStore = database.createObjectStore('sterileFieldChecklists', { keyPath: 'id' });
+        sterileStore.createIndex('sessionId', 'sessionId');
+      }
+
+      // Materials checklists store
+      if (!database.objectStoreNames.contains('materialsChecklists')) {
+        const materialsStore = database.createObjectStore('materialsChecklists', { keyPath: 'id' });
+        materialsStore.createIndex('sessionId', 'sessionId');
+      }
+
+      // Dressing protocols store
+      if (!database.objectStoreNames.contains('dressingProtocols')) {
+        const protocolStore = database.createObjectStore('dressingProtocols', { keyPath: 'id' });
+        protocolStore.createIndex('woundPhase', 'woundPhase');
+      }
+
+      // Post-dressing care store
+      if (!database.objectStoreNames.contains('postDressingCare')) {
+        const postCareStore = database.createObjectStore('postDressingCare', { keyPath: 'id' });
+        postCareStore.createIndex('sessionId', 'sessionId');
+      }
+
+      // Pain management plans store
+      if (!database.objectStoreNames.contains('painManagementPlans')) {
+        const planStore = database.createObjectStore('painManagementPlans', { keyPath: 'id' });
+        planStore.createIndex('patientId', 'patientId');
+        planStore.createIndex('woundId', 'woundId');
+        planStore.createIndex('createdAt', 'createdAt');
       }
     },
   });
@@ -352,4 +420,199 @@ export async function clearAllData(): Promise<void> {
   await database.clear('reports');
   await database.clear('syncQueue');
   await database.clear('images');
+  // Clear new tables
+  await database.clear('dressingSessions');
+  await database.clear('painAssessments');
+  await database.clear('sterileFieldChecklists');
+  await database.clear('materialsChecklists');
+  await database.clear('dressingProtocols');
+  await database.clear('postDressingCare');
+  await database.clear('painManagementPlans');
+}
+
+// ============================================
+// Dressing Session Operations
+// ============================================
+
+export async function createDressingSession(session: DressingSession): Promise<void> {
+  const database = await getDatabase();
+  await database.put('dressingSessions', session);
+  await addToSyncQueue('create', 'dressingSessions', session.id, session);
+}
+
+export async function getDressingSession(id: string): Promise<DressingSession | undefined> {
+  const database = await getDatabase();
+  return database.get('dressingSessions', id);
+}
+
+export async function getDressingSessionsForPatient(patientId: string): Promise<DressingSession[]> {
+  const database = await getDatabase();
+  return database.getAllFromIndex('dressingSessions', 'patientId', patientId);
+}
+
+export async function getDressingSessionsForWound(woundId: string): Promise<DressingSession[]> {
+  const database = await getDatabase();
+  return database.getAllFromIndex('dressingSessions', 'woundId', woundId);
+}
+
+export async function updateDressingSession(session: DressingSession): Promise<void> {
+  const database = await getDatabase();
+  session.updatedAt = new Date();
+  await database.put('dressingSessions', session);
+  await addToSyncQueue('update', 'dressingSessions', session.id, session);
+}
+
+export async function deleteDressingSession(id: string): Promise<void> {
+  const database = await getDatabase();
+  await database.delete('dressingSessions', id);
+  await addToSyncQueue('delete', 'dressingSessions', id, null);
+}
+
+// ============================================
+// Pain Assessment Operations
+// ============================================
+
+export async function createPainAssessment(assessment: DressingPainAssessment): Promise<void> {
+  const database = await getDatabase();
+  await database.put('painAssessments', assessment);
+  await addToSyncQueue('create', 'painAssessments', assessment.id, assessment);
+}
+
+export async function getPainAssessment(id: string): Promise<DressingPainAssessment | undefined> {
+  const database = await getDatabase();
+  return database.get('painAssessments', id);
+}
+
+export async function getPainAssessmentsForPatient(patientId: string): Promise<DressingPainAssessment[]> {
+  const database = await getDatabase();
+  return database.getAllFromIndex('painAssessments', 'patientId', patientId);
+}
+
+export async function updatePainAssessment(assessment: DressingPainAssessment): Promise<void> {
+  const database = await getDatabase();
+  await database.put('painAssessments', assessment);
+  await addToSyncQueue('update', 'painAssessments', assessment.id, assessment);
+}
+
+export async function deletePainAssessment(id: string): Promise<void> {
+  const database = await getDatabase();
+  await database.delete('painAssessments', id);
+  await addToSyncQueue('delete', 'painAssessments', id, null);
+}
+
+// ============================================
+// Pain Management Plan Operations
+// ============================================
+
+export async function createPainManagementPlan(plan: PainManagementPlan): Promise<void> {
+  const database = await getDatabase();
+  await database.put('painManagementPlans', plan);
+  await addToSyncQueue('create', 'painManagementPlans', plan.id, plan);
+}
+
+export async function getPainManagementPlan(id: string): Promise<PainManagementPlan | undefined> {
+  const database = await getDatabase();
+  return database.get('painManagementPlans', id);
+}
+
+export async function getPainManagementPlansForPatient(patientId: string): Promise<PainManagementPlan[]> {
+  const database = await getDatabase();
+  return database.getAllFromIndex('painManagementPlans', 'patientId', patientId);
+}
+
+export async function updatePainManagementPlan(plan: PainManagementPlan): Promise<void> {
+  const database = await getDatabase();
+  plan.updatedAt = new Date();
+  await database.put('painManagementPlans', plan);
+  await addToSyncQueue('update', 'painManagementPlans', plan.id, plan);
+}
+
+export async function deletePainManagementPlan(id: string): Promise<void> {
+  const database = await getDatabase();
+  await database.delete('painManagementPlans', id);
+  await addToSyncQueue('delete', 'painManagementPlans', id, null);
+}
+
+// ============================================
+// Sterile Field Checklist Operations
+// ============================================
+
+export async function createSterileFieldChecklist(checklist: SterileFieldChecklist): Promise<void> {
+  const database = await getDatabase();
+  await database.put('sterileFieldChecklists', checklist);
+}
+
+export async function getSterileFieldChecklist(id: string): Promise<SterileFieldChecklist | undefined> {
+  const database = await getDatabase();
+  return database.get('sterileFieldChecklists', id);
+}
+
+export async function getSterileFieldChecklistForSession(sessionId: string): Promise<SterileFieldChecklist | undefined> {
+  const database = await getDatabase();
+  const all = await database.getAllFromIndex('sterileFieldChecklists', 'sessionId', sessionId);
+  return all[0];
+}
+
+// ============================================
+// Materials Checklist Operations
+// ============================================
+
+export async function createMaterialsChecklist(checklist: MaterialsChecklist): Promise<void> {
+  const database = await getDatabase();
+  await database.put('materialsChecklists', checklist);
+}
+
+export async function getMaterialsChecklist(id: string): Promise<MaterialsChecklist | undefined> {
+  const database = await getDatabase();
+  return database.get('materialsChecklists', id);
+}
+
+export async function getMaterialsChecklistForSession(sessionId: string): Promise<MaterialsChecklist | undefined> {
+  const database = await getDatabase();
+  const all = await database.getAllFromIndex('materialsChecklists', 'sessionId', sessionId);
+  return all[0];
+}
+
+// ============================================
+// Post-Dressing Care Operations
+// ============================================
+
+export async function createPostDressingCare(care: PostDressingCare): Promise<void> {
+  const database = await getDatabase();
+  await database.put('postDressingCare', care);
+}
+
+export async function getPostDressingCare(id: string): Promise<PostDressingCare | undefined> {
+  const database = await getDatabase();
+  return database.get('postDressingCare', id);
+}
+
+export async function getPostDressingCareForSession(sessionId: string): Promise<PostDressingCare | undefined> {
+  const database = await getDatabase();
+  const all = await database.getAllFromIndex('postDressingCare', 'sessionId', sessionId);
+  return all[0];
+}
+
+// ============================================
+// Dressing Protocol Operations
+// ============================================
+
+export async function createDressingProtocol(protocol: DressingProtocol): Promise<void> {
+  const database = await getDatabase();
+  await database.put('dressingProtocols', protocol);
+}
+
+export async function getDressingProtocol(id: string): Promise<DressingProtocol | undefined> {
+  const database = await getDatabase();
+  return database.get('dressingProtocols', id);
+}
+
+export async function getDressingProtocolsForPhase(woundPhase: string): Promise<DressingProtocol[]> {
+  const database = await getDatabase();
+  return database.getAllFromIndex('dressingProtocols', 'woundPhase', woundPhase);
+}
+
+export async function getAllDressingProtocols(): Promise<DressingProtocol[]> {
+  const database = await getDatabase();
+  return database.getAll('dressingProtocols');
 }
