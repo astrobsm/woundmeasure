@@ -27,6 +27,7 @@ import {
   Layers,
   FileText,
   Camera,
+  Download,
 } from 'lucide-react';
 
 const STEPS: { id: DressingStep; label: string; icon: React.ReactNode }[] = [
@@ -97,6 +98,7 @@ export default function DressingProtocol() {
       const materials = PHASE_MATERIALS[localWoundPhase];
       if (materials) {
         const allMaterials = [
+          ...materials.cleaningSolution,
           ...materials.primary,
           ...materials.secondary,
           ...materials.absorbent,
@@ -139,6 +141,341 @@ export default function DressingProtocol() {
   };
 
   const allSterileChecksComplete = Object.values(sterileChecks).every(v => v);
+
+  const handleDownloadPDF = () => {
+    const phaseConfig = localWoundPhase ? WOUND_PHASE_CONFIG[localWoundPhase] : null;
+    const materials = localWoundPhase ? PHASE_MATERIALS[localWoundPhase] : null;
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const pdfContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Wound Dressing Protocol - BonneSante Medicals</title>
+  <style>
+    @page { margin: 20mm; size: A4; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', Arial, sans-serif; 
+      font-size: 11pt; 
+      line-height: 1.5;
+      color: #333;
+      position: relative;
+    }
+    .watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-30deg);
+      font-size: 72pt;
+      color: rgba(0, 128, 128, 0.06);
+      font-weight: bold;
+      white-space: nowrap;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 3px solid #008080;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      color: #008080;
+      font-size: 18pt;
+      margin-bottom: 5px;
+    }
+    .header .company {
+      font-size: 12pt;
+      color: #006666;
+      font-weight: bold;
+    }
+    .header .date {
+      font-size: 9pt;
+      color: #666;
+      margin-top: 5px;
+    }
+    .section {
+      margin-bottom: 20px;
+      page-break-inside: avoid;
+    }
+    .section-title {
+      background: linear-gradient(90deg, #008080, #00a0a0);
+      color: white;
+      padding: 8px 15px;
+      font-size: 12pt;
+      font-weight: bold;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .content-box {
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 15px;
+    }
+    .phase-info {
+      background: #e6f7f7;
+      border-left: 4px solid #008080;
+      padding: 12px;
+      margin-bottom: 15px;
+    }
+    .phase-name {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #008080;
+    }
+    .phase-desc {
+      font-size: 10pt;
+      color: #555;
+      margin-top: 5px;
+    }
+    .materials-group {
+      margin-bottom: 15px;
+    }
+    .materials-group h4 {
+      color: #008080;
+      font-size: 11pt;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 4px;
+    }
+    .materials-list {
+      list-style: none;
+      padding-left: 0;
+    }
+    .materials-list li {
+      padding: 4px 0 4px 20px;
+      position: relative;
+    }
+    .materials-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #008080;
+      font-weight: bold;
+    }
+    .steps-list {
+      counter-reset: step;
+      list-style: none;
+      padding-left: 0;
+    }
+    .steps-list li {
+      counter-increment: step;
+      padding: 10px 0 10px 45px;
+      position: relative;
+      border-bottom: 1px dashed #ddd;
+    }
+    .steps-list li:last-child {
+      border-bottom: none;
+    }
+    .steps-list li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      width: 28px;
+      height: 28px;
+      background: #008080;
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 28px;
+      font-weight: bold;
+      font-size: 12pt;
+    }
+    .step-title {
+      font-weight: bold;
+      color: #333;
+    }
+    .step-desc {
+      font-size: 10pt;
+      color: #666;
+      margin-top: 3px;
+    }
+    .warning-box {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 4px;
+      padding: 12px;
+      margin-top: 15px;
+    }
+    .warning-title {
+      color: #856404;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .warning-list {
+      list-style: disc;
+      padding-left: 20px;
+      color: #856404;
+      font-size: 10pt;
+    }
+    .notes-section {
+      margin-top: 15px;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-height: 60px;
+    }
+    .notes-label {
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 5px;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 2px solid #008080;
+      text-align: center;
+      font-size: 9pt;
+      color: #666;
+    }
+    .footer .company-name {
+      color: #008080;
+      font-weight: bold;
+      font-size: 10pt;
+    }
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="watermark">BonneSante</div>
+  
+  <div class="header">
+    <div class="company">BonneSante Medicals</div>
+    <h1>Wound Dressing Protocol</h1>
+    <div class="date">Generated: ${currentDate}</div>
+  </div>
+
+  ${phaseConfig ? `
+  <div class="section">
+    <div class="section-title">Wound Phase Assessment</div>
+    <div class="phase-info">
+      <div class="phase-name">${phaseConfig.displayName}</div>
+      <div class="phase-desc">${phaseConfig.description}</div>
+    </div>
+  </div>
+  ` : ''}
+
+  ${materials ? `
+  <div class="section">
+    <div class="section-title">Required Materials</div>
+    <div class="content-box">
+      <div class="materials-group">
+        <h4>Cleaning Solution</h4>
+        <ul class="materials-list">
+          ${materials.cleaningSolution.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="materials-group">
+        <h4>Primary Contact Layer</h4>
+        <ul class="materials-list">
+          ${materials.primary.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="materials-group">
+        <h4>Secondary Layer</h4>
+        <ul class="materials-list">
+          ${materials.secondary.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="materials-group">
+        <h4>Absorbent Layer</h4>
+        <ul class="materials-list">
+          ${materials.absorbent.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="materials-group">
+        <h4>Fixation</h4>
+        <ul class="materials-list">
+          ${materials.fixation.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  </div>
+  ` : ''}
+
+  <div class="section">
+    <div class="section-title">Dressing Application Steps</div>
+    <div class="content-box">
+      <ol class="steps-list">
+        <li>
+          <div class="step-title">Clean the Wound</div>
+          <div class="step-desc">Using Wound Clex Spray, gently cleanse the wound bed and surrounding skin. Allow to dry.</div>
+        </li>
+        <li>
+          <div class="step-title">Apply Primary Contact Layer</div>
+          <div class="step-desc">Apply Woundcare Honey Gauze or Hera Wound Gel directly to the wound bed. Cover with Hera Tex Dressing if needed.</div>
+        </li>
+        <li>
+          <div class="step-title">Apply Secondary Layer</div>
+          <div class="step-desc">Place sterile gauze or foam dressing over the primary layer to manage exudate.</div>
+        </li>
+        <li>
+          <div class="step-title">Add Absorbent Layer</div>
+          <div class="step-desc">For wounds with heavy exudate, apply Gamgee Pack or Cotton Wool Pack for additional absorption.</div>
+        </li>
+        <li>
+          <div class="step-title">Secure with Fixation</div>
+          <div class="step-desc">Secure the dressing using Coban Bandage, Crepe Bandage, Plaster, or Tubular Bandage as appropriate.</div>
+        </li>
+        <li>
+          <div class="step-title">Document and Dispose</div>
+          <div class="step-desc">Record the dressing change, dispose of waste properly, and schedule next dressing change.</div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Post-Care Instructions</div>
+    <div class="content-box">
+      <div class="warning-box">
+        <div class="warning-title">⚠️ Signs of Infection - Seek Medical Attention If:</div>
+        <ul class="warning-list">
+          ${INFECTION_SIGNS.map(sign => `<li>${sign}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  ${notes ? `
+  <div class="section">
+    <div class="section-title">Clinical Notes</div>
+    <div class="notes-section">
+      ${notes}
+    </div>
+  </div>
+  ` : ''}
+
+  <div class="footer">
+    <div class="company-name">BonneSante Medicals</div>
+    <div>Wound Care Excellence | Professional Medical Supplies</div>
+    <div style="margin-top: 5px; font-size: 8pt;">This document is for clinical reference only. Always follow institutional protocols.</div>
+  </div>
+</body>
+</html>`;
+
+    // Open print dialog for PDF
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(pdfContent);
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+      };
+    }
+  };
 
   const handleFinish = () => {
     // Update session as completed
@@ -301,6 +638,32 @@ export default function DressingProtocol() {
 
             {materials && (
               <div className="space-y-4">
+                {/* Cleaning Solution */}
+                {materials.cleaningSolution && materials.cleaningSolution.length > 0 && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-800 mb-3">Cleaning Solution</h4>
+                    <div className="space-y-2">
+                      {materials.cleaningSolution.map((item, i) => {
+                        const key = `cleaning-${i}-${item}`;
+                        return (
+                          <label
+                            key={key}
+                            className="flex items-center gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={materialChecks[key] || false}
+                              onChange={e => handleMaterialCheck(key, e.target.checked)}
+                              className="w-5 h-5 rounded border-gray-300 text-astro-500 focus:ring-astro-500"
+                            />
+                            <span className="text-gray-700">{item}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {/* Primary Contact Layer */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <h4 className="font-semibold text-gray-800 mb-3">Primary Contact Layer</h4>
@@ -597,6 +960,15 @@ export default function DressingProtocol() {
                 placeholder="Document wound observations, patient response, and any concerns..."
               />
             </div>
+
+            {/* Download PDF Button */}
+            <button
+              onClick={handleDownloadPDF}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
+            >
+              <Download className="w-5 h-5" />
+              Download Dressing Protocol PDF
+            </button>
 
             <div className="flex gap-3">
               <button

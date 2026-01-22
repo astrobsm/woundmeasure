@@ -525,6 +525,7 @@ export const WOUND_PHASE_CONFIG: Record<WoundPhase, {
 // ============================================
 
 export const PHASE_MATERIALS: Record<WoundPhase, {
+  cleaningSolution: string[];
   primary: string[];
   secondary: string[];
   absorbent: string[];
@@ -532,24 +533,27 @@ export const PHASE_MATERIALS: Record<WoundPhase, {
   optional: string[];
 }> = {
   extension: {
+    cleaningSolution: [
+      'Wound Clex Spray'
+    ],
     primary: [
-      'Hydrogel sheets or amorphous gel',
-      'Alginate dressings',
-      'Hydrofiber dressings',
-      'Antimicrobial dressings (silver/iodine)'
+      'Woundcare Honey Gauze',
+      'Hera Wound Gel',
+      'Hera Tex Dressing'
     ],
     secondary: [
-      'Foam dressings',
-      'Super absorbent polymer dressings'
+      'Sterile Gauze',
+      'Foam Dressing'
     ],
     absorbent: [
-      'Gauze padding',
-      'Combine dressings'
+      'Gamgee Pack',
+      'Cotton Wool Pack'
     ],
     fixation: [
-      'Conformable bandage',
-      'Tape (hypoallergenic)',
-      'Tubular bandage'
+      'Coban Bandage',
+      'Crepe Bandage',
+      'Plaster',
+      'Tubular Bandage'
     ],
     optional: [
       'Negative pressure wound therapy',
@@ -557,22 +561,27 @@ export const PHASE_MATERIALS: Record<WoundPhase, {
     ]
   },
   transition: {
+    cleaningSolution: [
+      'Wound Clex Spray'
+    ],
     primary: [
-      'Hydrocolloid dressings',
-      'Foam dressings',
-      'Alginate dressings'
+      'Woundcare Honey Gauze',
+      'Hera Wound Gel',
+      'Hera Tex Dressing'
     ],
     secondary: [
-      'Non-adherent dressings',
-      'Silicone contact layers'
+      'Sterile Gauze',
+      'Foam Dressing'
     ],
     absorbent: [
-      'Light absorbent padding'
+      'Gamgee Pack',
+      'Cotton Wool Pack'
     ],
     fixation: [
-      'Conformable bandage',
-      'Retention sheets',
-      'Tape'
+      'Coban Bandage',
+      'Crepe Bandage',
+      'Plaster',
+      'Tubular Bandage'
     ],
     optional: [
       'Honey-based dressings',
@@ -580,22 +589,27 @@ export const PHASE_MATERIALS: Record<WoundPhase, {
     ]
   },
   repair: {
+    cleaningSolution: [
+      'Wound Clex Spray'
+    ],
     primary: [
-      'Silicone foam dressings',
-      'Thin hydrocolloid',
-      'Non-adherent mesh'
+      'Woundcare Honey Gauze',
+      'Hera Wound Gel',
+      'Hera Tex Dressing'
     ],
     secondary: [
-      'Film dressings',
-      'Light foam dressings'
+      'Sterile Gauze',
+      'Foam Dressing'
     ],
     absorbent: [
-      'Minimal absorbent layer if needed'
+      'Gamgee Pack',
+      'Cotton Wool Pack'
     ],
     fixation: [
-      'Light tape',
-      'Retention film',
-      'Tubular bandage'
+      'Coban Bandage',
+      'Crepe Bandage',
+      'Plaster',
+      'Tubular Bandage'
     ],
     optional: [
       'Silicone gel sheeting (for scarring)',
